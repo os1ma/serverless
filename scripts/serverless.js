@@ -401,7 +401,7 @@ const processSpanPromise = (async () => {
           'INTERACTIVE_SETUP_IN_NON_TTY'
         );
       }
-      await require('../lib/cli/interactive-setup')({
+      const commandUsage = await require('../lib/cli/interactive-setup')({
         configuration,
         serviceDir,
         configurationFilename,
@@ -416,6 +416,7 @@ const processSpanPromise = (async () => {
             commandSchema,
             serviceDir,
             configuration,
+            commandUsage,
           })
         );
         await sendTelemetry({ serverlessExecutionSpan: processSpanPromise });

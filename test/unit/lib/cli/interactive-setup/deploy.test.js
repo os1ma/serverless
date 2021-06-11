@@ -8,6 +8,7 @@ const overrideEnv = require('process-utils/override-env');
 const step = require('../../../../../lib/cli/interactive-setup/deploy');
 const proxyquire = require('proxyquire');
 const overrideStdoutWrite = require('process-utils/override-stdout-write');
+const { StepHistory } = require('@serverless/utils/telemetry');
 
 const { expect } = chai;
 
@@ -93,22 +94,24 @@ describe('test/unit/lib/cli/interactive-setup/deploy.test.js', () => {
         confirm: { shouldDeploy: false },
       });
 
+      const context = {
+        serviceDir: process.cwd(),
+        configuration: {
+          service: 'someservice',
+          provider: { name: 'aws' },
+        },
+        configurationFilename: 'serverless.yml',
+        stepHistory: new StepHistory(),
+      };
       let stdoutData = '';
       await overrideStdoutWrite(
         (data) => (stdoutData += data),
-        async () =>
-          await step.run({
-            serviceDir: process.cwd(),
-            configuration: {
-              service: 'someservice',
-              provider: { name: 'aws' },
-            },
-            configurationFilename: 'serverless.yml',
-          })
+        async () => await step.run(context)
       );
 
       expect(stdoutData).to.include('Your project is ready for deployment');
       expect(stdoutData).to.include(`Run ${chalk.bold('serverless')} in the project directory`);
+      expect(context.stepHistory.valuesMap()).to.deep.equal(new Map([['shouldDeploy', false]]));
     });
 
     it('should correctly handle skipping deployment for service not configured with dashboard', async () => {
@@ -116,24 +119,26 @@ describe('test/unit/lib/cli/interactive-setup/deploy.test.js', () => {
         confirm: { shouldDeploy: false },
       });
 
+      const context = {
+        serviceDir: process.cwd(),
+        configuration: {
+          service: 'someservice',
+          provider: { name: 'aws' },
+          org: 'someorg',
+          app: 'someapp',
+        },
+        configurationFilename: 'serverless.yml',
+        stepHistory: new StepHistory(),
+      };
       let stdoutData = '';
       await overrideStdoutWrite(
         (data) => (stdoutData += data),
-        async () =>
-          await step.run({
-            serviceDir: process.cwd(),
-            configuration: {
-              service: 'someservice',
-              provider: { name: 'aws' },
-              org: 'someorg',
-              app: 'someapp',
-            },
-            configurationFilename: 'serverless.yml',
-          })
+        async () => await step.run(context)
       );
 
       expect(stdoutData).to.include('Your project is ready for deployment');
       expect(stdoutData).to.include('Invoke your functions and view logs in the dashboard');
+      expect(context.stepHistory.valuesMap()).to.deep.equal(new Map([['shouldDeploy', false]]));
     });
 
     it('should correctly handle deployment for service configured with dashboard', async () => {
@@ -169,26 +174,29 @@ describe('test/unit/lib/cli/interactive-setup/deploy.test.js', () => {
         confirm: { shouldDeploy: true },
       });
 
+      const context = {
+        serviceDir: process.cwd(),
+        configuration: {
+          service: 'someservice',
+          provider: { name: 'aws' },
+          org: 'someorg',
+          app: 'someapp',
+        },
+        configurationFilename: 'serverless.yml',
+        stepHistory: new StepHistory(),
+      };
       let stdoutData = '';
       await overrideStdoutWrite(
         (data) => (stdoutData += data),
-        async () =>
-          await mockedStep.run({
-            serviceDir: process.cwd(),
-            configuration: {
-              service: 'someservice',
-              provider: { name: 'aws' },
-              org: 'someorg',
-              app: 'someapp',
-            },
-            configurationFilename: 'serverless.yml',
-          })
+        async () => await mockedStep.run(context)
       );
 
       expect(stdoutData).to.include('Your project is live and available');
       expect(stdoutData).to.include(
         `Open ${chalk.bold('https://app.serverless-dev.com/path/to/dashboard')}`
       );
+
+      expect(context.stepHistory.valuesMap()).to.deep.equal(new Map([['shouldDeploy', true]]));
     });
 
     it('should correctly handle deployment for service not configured with dashboard', async () => {
@@ -220,22 +228,24 @@ describe('test/unit/lib/cli/interactive-setup/deploy.test.js', () => {
         confirm: { shouldDeploy: true },
       });
 
+      const context = {
+        serviceDir: process.cwd(),
+        configuration: {
+          service: 'someservice',
+          provider: { name: 'aws' },
+        },
+        configurationFilename: 'serverless.yml',
+        stepHistory: new StepHistory(),
+      };
       let stdoutData = '';
       await overrideStdoutWrite(
         (data) => (stdoutData += data),
-        async () =>
-          await mockedStep.run({
-            serviceDir: process.cwd(),
-            configuration: {
-              service: 'someservice',
-              provider: { name: 'aws' },
-            },
-            configurationFilename: 'serverless.yml',
-          })
+        async () => await mockedStep.run(context)
       );
 
       expect(stdoutData).to.include('Your project is live and available');
       expect(stdoutData).to.include(`Run ${chalk.bold('serverless')}`);
+      expect(context.stepHistory.valuesMap()).to.deep.equal(new Map([['shouldDeploy', true]]));
     });
   });
 });
