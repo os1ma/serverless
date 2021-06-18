@@ -159,9 +159,11 @@ describe('PluginManager', () => {
           options: {
             resource: {
               usage: 'The resource you want to deploy (e.g. --resource db)',
+              type: 'string',
             },
             function: {
               usage: 'The function you want to deploy (e.g. --function create)',
+              type: 'string',
             },
           },
           commands: {
@@ -171,9 +173,11 @@ describe('PluginManager', () => {
               options: {
                 resource: {
                   usage: 'The resource you want to deploy (e.g. --resource db)',
+                  type: 'string',
                 },
                 function: {
                   usage: 'The function you want to deploy (e.g. --function create)',
+                  type: 'string',
                 },
               },
             },
@@ -209,9 +213,11 @@ describe('PluginManager', () => {
           options: {
             resource: {
               usage: 'The resource you want to deploy (e.g. --resource db)',
+              type: 'string',
             },
             function: {
               usage: 'The function you want to deploy (e.g. --function create)',
+              type: 'string',
             },
           },
           commands: {
@@ -222,9 +228,11 @@ describe('PluginManager', () => {
               options: {
                 resource: {
                   usage: 'The resource you want to deploy (e.g. --resource db)',
+                  type: 'string',
                 },
                 function: {
                   usage: 'The function you want to deploy (e.g. --function create)',
+                  type: 'string',
                 },
               },
             },
@@ -2000,7 +2008,7 @@ describe('PluginManager', () => {
     const serverlessExec = require('../../../serverlessBinary');
 
     beforeEach(() => {
-      serverlessInstance = new Serverless();
+      serverlessInstance = new Serverless({ commands: ['print'], options: {}, serviceDir: null });
       return serverlessInstance.init().then(() => {
         // Cannot rely on shebang in severless.js to invoke script using NodeJS on Windows.
         const tmpDir = getTmpDirPath();
